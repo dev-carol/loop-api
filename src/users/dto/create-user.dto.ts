@@ -30,6 +30,7 @@ export class CreateUserDto {
     description: 'Uma descrição sobre você',
     example: '24 anos, moro em São Paulo e amo os animais',
   })
+  @IsNotEmpty()
   @IsString()
   bio: string | null;
 }

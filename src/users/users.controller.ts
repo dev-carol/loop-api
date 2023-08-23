@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
 @ApiTags('Users')
@@ -20,10 +20,11 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: 'Create an user' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @ApiBody({ type: CreateUserDto })
+  async create(@Body() createUserDto: CreateUserDto) {
+    const newUser = await this.usersService.create(createUserDto);
+    return { user: newUser };
   }
-
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   findAll() {
