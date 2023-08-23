@@ -10,7 +10,7 @@ export class UsersService {
   create(createUserDto: CreateUserDto) {
     return this.prismaService.user.create({
       data: createUserDto,
-    })
+    });
   }
 
   findAll() {
@@ -25,11 +25,18 @@ export class UsersService {
     });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.prismaService.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.prismaService.user.delete({
+      where: {
+        id: id,
+      },
+    });
   }
 }
