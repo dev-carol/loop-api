@@ -19,7 +19,7 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Post(':userId') 
+  @Post(':userId')
   @ApiOperation({ summary: 'Create a post' })
   @ApiParam({ name: 'userId', description: 'User ID associated with the post' })
   create(
@@ -27,7 +27,6 @@ export class PostsController {
     @Param('userId') userId: string,
     @Request() request,
   ) {
-
     return this.postsService.create(userId, createPostDto);
   }
 
