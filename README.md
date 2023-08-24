@@ -27,7 +27,9 @@ DATABASE_URL="postgresql://{USER}:{YOURPASSWORD}@localhost:5432/loop?schema=publ
 Certifique-se de definir JWT_SECRET como um segredo seguro para assinar tokens JWT. 
 dica: rode no seu terminal : 
 
-```openssl rand -base64 32
+```
+openssl rand -base64 32
+
 ```
 
 
