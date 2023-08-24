@@ -101,7 +101,9 @@ export class UsersService {
       });
 
       if (!existingUser) {
-        throw new NotFoundException(`Usuário não foi encontrado com o ID ${id}`);
+        throw new NotFoundException(
+          `Usuário não foi encontrado com o ID ${id}`,
+        );
       }
 
       return await this.prismaService.user.update({
@@ -122,7 +124,9 @@ export class UsersService {
       });
 
       if (!existingUser) {
-        throw new NotFoundException(`Usuário não foi encontrado com o ID ${id}`);
+        throw new NotFoundException(
+          `Usuário não foi encontrado com o ID ${id}`,
+        );
       }
 
       return await this.prismaService.user.delete({
