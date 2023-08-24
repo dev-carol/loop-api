@@ -89,7 +89,7 @@ Para autenticar :
 ```
 
 1. Você receberá um token de acesso no corpo da resposta.
-2. Use o token de acesso para fazer solicitações autenticadas, adicionando um cabeçalho Authorization no formato  <token>.A palavra Bearer já está tratada, então basta só adicionar o <Token>
+2. Use o token de acesso para fazer solicitações autenticadas, adicionando um cabeçalho Authorization no formato  token .A palavra Bearer já está tratada, então basta só adicionar o Token
 
 
 ## Desenvolvido por: 
