@@ -4,20 +4,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { name, email, date_birthday, bio } = createUserDto;
+    const { name, email, date_birthday, bio, password } = createUserDto;
 
-    if (!name || !email || !date_birthday || bio === undefined) {
+    if (!name || !email || !date_birthday || bio === undefined || !password) {
       throw new BadRequestException('Todos os campos devem ser preenchidos');
     }
+
     const existingUser = await this.prismaService.user.findUnique({
       where: { email },
     });
@@ -27,15 +30,31 @@ export class UsersService {
     }
 
     try {
-      const newUser = await this.prismaService.user.create({
-        data: createUserDto,
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const createdUser = await this.prismaService.user.create({
+        data: {
+          name,
+          email,
+          date_birthday,
+          bio,
+          password: hashedPassword,
+        },
       });
 
-      return newUser;
+      return {
+        ...createdUser,
+        password: undefined,
+      };
     } catch (error) {
       throw new Error(`Erro ao criar o usuário: ${error.message}`);
     }
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prismaService.user.findUnique({ where: { email } });
+  }
+
   async findAll() {
     try {
       return await this.prismaService.user.findMany();
