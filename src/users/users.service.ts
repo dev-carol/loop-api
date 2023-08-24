@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -47,19 +48,33 @@ export class UsersService {
         password: undefined,
       };
     } catch (error) {
-      throw new Error(`Erro ao criar o usuário: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao criar usuário: ${error.message}`,
+      );
     }
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.prismaService.user.findUnique({ where: { email } });
+    try {
+      return await this.prismaService.user.findUnique({ where: { email } });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Erro ao buscar usuário por email: ${error.message}`,
+      );
+    }
   }
 
   async findAll() {
     try {
-      return await this.prismaService.user.findMany();
+      const users = await this.prismaService.user.findMany();
+      if (users.length === 0) {
+        throw new NotFoundException('Não há usuários cadastrados.');
+      }
+      return users;
     } catch (error) {
-      throw new Error(`Erro ao buscar usuários: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao buscar usuários: ${error.message}`,
+      );
     }
   }
 
@@ -70,12 +85,12 @@ export class UsersService {
       });
 
       if (!user) {
-        throw new NotFoundException('Usuário não encontrado');
+        throw new NotFoundException('Usuário não foi encontrado');
       }
 
       return user;
     } catch (error) {
-      throw new Error(`Erro ao buscar usuário: ${error.message}`);
+      throw new NotFoundException(`Usuário não foi encontradao com o ID ${id}`);
     }
   }
 
@@ -86,7 +101,7 @@ export class UsersService {
       });
 
       if (!existingUser) {
-        throw new NotFoundException('Usuário não encontrado');
+        throw new NotFoundException(`Usuário não foi encontrado com o ID ${id}`);
       }
 
       return await this.prismaService.user.update({
@@ -94,7 +109,9 @@ export class UsersService {
         data: updateUserDto,
       });
     } catch (error) {
-      throw new Error(`Erro ao atualizar usuário: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao atualizar usuário: ${error.message}`,
+      );
     }
   }
 
@@ -105,14 +122,16 @@ export class UsersService {
       });
 
       if (!existingUser) {
-        throw new NotFoundException('Usuário não encontrado');
+        throw new NotFoundException(`Usuário não foi encontrado com o ID ${id}`);
       }
 
       return await this.prismaService.user.delete({
         where: { id },
       });
     } catch (error) {
-      throw new Error(`Erro ao excluir usuário: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao excluir usuário: ${error.message}`,
+      );
     }
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PrismaService } from '../prisma/prisma/prisma.service';
@@ -20,15 +24,23 @@ export class PostsService {
         },
       });
     } catch (error) {
-      throw new Error(`Erro ao criar postagem: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao criar postagem: ${error.message}`,
+      );
     }
   }
 
   async findAll() {
     try {
-      return await this.prismaService.post.findMany();
+      const posts = await this.prismaService.post.findMany();
+
+      if (posts.length === 0) {
+        throw new NotFoundException('Não há publicações no momento.');
+      }
+
+      return posts;
     } catch (error) {
-      throw new Error(`Erro ao buscar postagens: ${error.message}`);
+      throw new NotFoundException('Não há publicações no momento.');
     }
   }
 
@@ -40,7 +52,7 @@ export class PostsService {
         },
       });
     } catch (error) {
-      throw new Error(`Erro ao buscar postagem: ${error.message}`);
+      throw new NotFoundException(`Postagem não encontrada com o ID ${id}`);
     }
   }
 
@@ -51,7 +63,7 @@ export class PostsService {
       });
 
       if (!existingPost) {
-        throw new NotFoundException('Publicação não foi encontrada');
+        throw new NotFoundException(`Postagem não foi encontrado com o ID ${id}`);
       }
 
       return await this.prismaService.post.update({
@@ -61,7 +73,9 @@ export class PostsService {
         },
       });
     } catch (error) {
-      throw new Error(`Erro ao atualizar postagem: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao atualizar postagem: ${error.message}`,
+      );
     }
   }
 
@@ -72,14 +86,16 @@ export class PostsService {
       });
 
       if (!existingPost) {
-        throw new NotFoundException('Publicação não foi encontrada');
+        throw new NotFoundException(`Postagem não foi encontrada com o ID ${id}`);
       }
 
       return await this.prismaService.post.delete({
         where: { id },
       });
     } catch (error) {
-      throw new Error(`Erro ao excluir postagem: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Erro ao excluir postagem: ${error.message}`,
+      );
     }
   }
 }
